@@ -2,10 +2,6 @@ from time import sleep
 import os
 
 
-class InvalidCellException(Exception):
-    pass
-
-
 class Board:
     def __init__(self, cells) -> None:
         self.cells = cells
@@ -45,7 +41,10 @@ class Board:
                 ]
 
     def updated_board(self, cell):
-        new_cells = self.cells.copy()
+        new_cells = []
+        for c in self.cells:
+            new_cell = Cell(c.row, c.column, c.value)
+            new_cells.append(new_cell)
         new_cells[cell.index] = cell
         return Board(new_cells)
 
@@ -70,6 +69,18 @@ class Board:
             cell.validate()
 
 
+class CellException(Exception):
+    pass
+
+
+class InvalidCellException(CellException):
+    pass
+
+
+class NoCandidateException(CellException):
+    pass
+
+
 class Cell:
     def __init__(self, row, column, value) -> None:
         self.value = value
@@ -89,15 +100,10 @@ class Cell:
         for i in range(1, 10):
             if i in self.candidates:
                 return i
-        raise InvalidCellException
+        raise NoCandidateException
 
     def remove_candidate(self, value):
         self.candidates.discard(value)
-        try:
-            self.validate()
-            return True
-        except InvalidCellException:
-            return False
 
     def validate(self):
         if self.value is None and len(self.candidates) == 0:
