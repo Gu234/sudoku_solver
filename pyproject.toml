@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "sudoku-solver"
+version = "0.1.0"
+description = "sudoku solver"
+authors = ["Gustaw Filipek <guciofilipek@gmail.com>"]
+readme = "README.md"
+packages = [{include = "sudoku_solver"}]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+black = "^23.3.0"
+flake8 = "^6.0.0"
+pytest = "^7.4.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

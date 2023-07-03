@@ -10,7 +10,18 @@ class Board:
             self.setup_possible_cell_states(cell)
             if cell.value is None:
                 empty_cells.append(cell)
-        self.sorted_empty_cells = sorted(empty_cells, key=lambda cell: len(cell.candidates))
+        self.sorted_empty_cells = sorted(
+            empty_cells, key=lambda cell: len(cell.candidates)
+        )
+
+    def to_string_format(self):
+        target = ""
+        for cell in self.cells:
+            if cell.value is None:
+                target += "0"
+            else:
+                target += str(cell.value)
+        return target
 
     def to_table_format(self):
         table = [[0] * 9 for i in range(9)]
@@ -19,16 +30,16 @@ class Board:
         return table
 
     def draw(self):
-        os.system('cls' if os.name == 'nt' else 'clear')
-        print('#####################')
+        os.system("cls" if os.name == "nt" else "clear")
+        print("#####################")
         for row in range(9):
-            str_to_print = ''
+            str_to_print = ""
             for column in range(9):
                 value = self.cells[row * 9 + column].value
-                value = str(value) if value else '_'
-                str_to_print += value + ' '
+                value = str(value) if value else "_"
+                str_to_print += value + " "
             print(str_to_print)
-        print('#####################')
+        print("#####################")
         sleep(0.1)
 
     def get_cell_with_min_candidates(self):
@@ -38,7 +49,7 @@ class Board:
         box_indexes = get_indexes_from_box_id(target_cell.box_id)
         row_indexes = [target_cell.row * 9 + i for i in range(9)]
         column_indexes = [target_cell.column + i * 9 for i in range(9)]
-        
+
         indexes_set = set(box_indexes + row_indexes + column_indexes)
         indexes_set.remove(target_cell.index)
 
@@ -61,16 +72,14 @@ class Board:
     def empty_cells(self):
         return self.sorted_empty_cells
 
-    
     def setup_possible_cell_states(self, target_cell):
-        ''' given the current sudoku state, setup candidate values for a given cell '''
+        """given the current sudoku state, setup candidate values for a given cell"""
         for cell in self.yield_connected_cells(target_cell):
             if cell.value in target_cell.candidates:
                 target_cell.candidates.discard(cell.value)
 
             cell.validate()
 
-      
 
 class CellException(Exception):
     pass
@@ -113,17 +122,7 @@ class Cell:
             raise InvalidCellException
 
 
-corner_box_ids = {
-    1: 0,
-    2: 3,
-    3: 6,
-    4: 27,
-    5: 30,
-    6: 33,
-    7: 54,
-    8: 57,
-    9: 60
-}
+corner_box_ids = {1: 0, 2: 3, 3: 6, 4: 27, 5: 30, 6: 33, 7: 54, 8: 57, 9: 60}
 
 
 def get_indexes_from_box_id(box_id):
