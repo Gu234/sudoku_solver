@@ -18,9 +18,10 @@ class SudokuSolver:
         new_board = self.board
         candidate_cell = new_board.get_cell_with_min_candidates()
         solution_stack = SolutionStack(self.board, None, candidate_cell)
+        loop_counter = 0
 
         while not new_board.is_solved:
-
+            loop_counter += 1
             try:
                 candidate_cell = new_board.get_cell_with_min_candidates()
                 candidate_value = candidate_cell.get_next_candidate()
@@ -40,7 +41,7 @@ class SudokuSolver:
                 old_cell = new_board.cells[invalid_cell.index]
                 old_cell.remove_candidate(invalid_cell.value)
 
-        return new_board.to_table_format()
+        return new_board.to_table_format(), loop_counter
 
 
 class SolutionStack:

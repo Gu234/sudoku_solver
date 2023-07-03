@@ -5,8 +5,12 @@ import os
 class Board:
     def __init__(self, cells) -> None:
         self.cells = cells
+        empty_cells = []
         for cell in cells:
             self.setup_possible_cell_states(cell)
+            if cell.value is None:
+                empty_cells.append(cell)
+        self.sorted_empty_cells = sorted(empty_cells, key=lambda cell: len(cell.candidates))
 
     def to_table_format(self):
         table = [[0] * 9 for i in range(9)]
@@ -28,17 +32,18 @@ class Board:
         sleep(0.1)
 
     def get_cell_with_min_candidates(self):
-        sorted_cells = sorted(
-            self.empty_cells, key=lambda cell: len(cell.candidates))
-        return sorted_cells[0]
+        return self.sorted_empty_cells[0]
 
-    def get_connected_cells(self, target_cell):
-        return [cell for cell in self.cells if (
-                cell.row == target_cell.row or
-                cell.column == target_cell.column or
-                cell.box_id == target_cell.box_id
-                )
-                ]
+    def yield_connected_cells(self, target_cell):
+        box_indexes = get_indexes_from_box_id(target_cell.box_id)
+        row_indexes = [target_cell.row * 9 + i for i in range(9)]
+        column_indexes = [target_cell.column + i * 9 for i in range(9)]
+        
+        indexes_set = set(box_indexes + row_indexes + column_indexes)
+        indexes_set.remove(target_cell.index)
+
+        for index in indexes_set:
+            yield self.cells[index]
 
     def updated_board(self, cell):
         new_cells = []
@@ -50,24 +55,22 @@ class Board:
 
     @property
     def is_solved(self):
-        return self.empty_cells == []
+        return self.sorted_empty_cells == []
 
     @property
     def empty_cells(self):
-        return [cell for cell in self.cells if cell.value is None]
+        return self.sorted_empty_cells
 
-    def get_cells_by_box_id(self, box_id):
-        ''' return list of cells that reside in the same sudoku box as given cell '''
-        return [cell for cell in self.cell if cell.box_id == box_id]
-
+    
     def setup_possible_cell_states(self, target_cell):
         ''' given the current sudoku state, setup candidate values for a given cell '''
-        for cell in self.get_connected_cells(target_cell):
+        for cell in self.yield_connected_cells(target_cell):
             if cell.value in target_cell.candidates:
                 target_cell.candidates.discard(cell.value)
 
             cell.validate()
 
+      
 
 class CellException(Exception):
     pass
@@ -110,4 +113,23 @@ class Cell:
             raise InvalidCellException
 
 
+corner_box_ids = {
+    1: 0,
+    2: 3,
+    3: 6,
+    4: 27,
+    5: 30,
+    6: 33,
+    7: 54,
+    8: 57,
+    9: 60
+}
 
+
+def get_indexes_from_box_id(box_id):
+    corner_index = corner_box_ids[box_id]
+    indexes = []
+    for i in range(3):
+        for j in range(3):
+            indexes.append(corner_index + j + i * 9)
+    return indexes

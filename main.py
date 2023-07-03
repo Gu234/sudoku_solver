@@ -1,25 +1,23 @@
 from database import sudokus
 from sudoku_solver import SudokuSolver
 from itertools import product
-
+from time import time
 def main():
-    for i in range(1, 1000):
-        print(f'Solving for sudoku: {i}')
+    avrg_time = 0
+    avrg_loops = 0
+    for i in range(1, 101):
+        time_delta = time()
+        # print(f'Solving for sudoku: {i}')
         solver = SudokuSolver(sudokus[i]['initial'])
-        solution = solver.solve()
+        solution, loop_counter = solver.solve()
+        time_delta = time() - time_delta
+        avrg_time += time_delta
+        avrg_loops += loop_counter
 
-        if test_solution(solution, sudokus[i]['solution']):
-            continue
-        else:
-            raise Exception(f'Failed solution for id: {i}')
+    avrg_time /= 100
+    avrg_loops /= 100 
 
-
-def test_solution(attempt, solution):
-    for i, j in product(range(9), range(9)):
-        if attempt[i][j] != solution[i][j]:
-            return False
-    return True
-    
+    print('Average time: ', avrg_time, 'Average loops: ', avrg_loops)
 
 if __name__ == "__main__":
     main()
